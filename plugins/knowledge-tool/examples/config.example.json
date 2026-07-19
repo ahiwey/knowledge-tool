@@ -1,0 +1,7 @@
+{
+  "default_learning_root": null,
+  "recent_limit": 10,
+  "assessment_difficulty": "adaptive",
+  "language": "zh-CN",
+  "project_scan_max_files": 200
+}

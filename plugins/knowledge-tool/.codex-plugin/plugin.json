@@ -1,0 +1,25 @@
+{
+  "name": "knowledge-tool",
+  "version": "0.1.0",
+  "description": "A Codex learning workflow plugin that creates external, resumable study folders for topics and code projects.",
+  "author": {
+    "name": "KnowledgeTool"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "KnowledgeTool",
+    "shortDescription": "Interview, plan, test, and resume learning any topic or code project.",
+    "longDescription": "KnowledgeTool guides Codex through a structured learning loop: learner interview, multi-perspective research, conflict mapping, resource triage, staged practice, retrieval testing, Feynman review, and one-page cheat sheets. User study content is always written outside the plugin source into configurable learning directories.",
+    "developerName": "KnowledgeTool",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "@KnowledgeTool Android Compose",
+      "@KnowledgeTool 学习项目 C:\\Ai\\Project\\App",
+      "@KnowledgeTool 继续Android Compose"
+    ]
+  }
+}

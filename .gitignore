@@ -1,0 +1,4 @@
+.knowledge-tool/
+.tmp-learning-test/
+__pycache__/
+*.pyc
