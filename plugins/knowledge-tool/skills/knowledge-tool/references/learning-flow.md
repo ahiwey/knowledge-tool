@@ -2,6 +2,17 @@
 
 This workflow is based on a closed-loop AI learning method: path, test, compression, and feedback. The goal is not to collect more resources; it is to build usable understanding, expose blind spots, and preserve progress.
 
+## Fast Context Protocol
+
+Before expanding the context, resume from `learning_state.json` and `progress-index.md`. Use `context-summary.md` for the compact learner model when the session is long. Avoid reading every learning document on every turn; load only the current-stage file unless the learner asks for a broader review.
+
+Each teaching turn should usually provide:
+
+- A direct answer or correction
+- The smallest example that resolves the confusion
+- One focused retrieval question
+- A progress update in `assessment.md` and `progress-index.md` when scoring or changing the next task
+
 ## 0. Learner Interview
 
 Collect only the information that changes the plan:
@@ -118,6 +129,8 @@ Assessment design must avoid order bias:
 - Avoid questions where the learner can answer by echoing the previous list order rather than understanding the concept.
 - For multi-part classification, use realistic scenario labels and mix the correct categories.
 - Keep the canonical answer private until after the learner answers, then record the score and explanation.
+- Phrase lifecycle questions precisely. If a construct starts a coroutine once but keeps collecting until the Composable leaves composition, say that explicitly in the question stem.
+- For APIs with keys or lifecycle behavior, ask for both the trigger and duration, for example: "When does it start, when does it restart, and when is it cancelled?"
 
 Question sequence:
 

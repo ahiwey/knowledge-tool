@@ -26,12 +26,16 @@ DEFAULT_CONFIG: dict[str, Any] = {
     "recent_limit": 10,
     "assessment_difficulty": "adaptive",
     "assessment_order_bias": "avoid",
+    "response_mode": "fast",
+    "context_policy": "compact",
     "language": "zh-CN",
     "project_scan_max_files": 200,
 }
 
 DOC_FILES = {
     "README.md": "# {topic}\n\nStatus: {status}\n\nNext step: {next_step}\n",
+    "progress-index.md": "# Progress Index\n\n## Current Position\n\n- Current step: {status}\n- Next step: {next_step}\n\n## Fast Resume Notes\n\nRead this file first when resuming. Use it to avoid reloading long history unless the current step requires it.\n",
+    "context-summary.md": "# Context Summary\n\n## Stable Learner Model\n\n## Current Concept\n\n## Recent Scores\n\n## Open Questions\n",
     "interview.md": "# Learner Interview\n\n## Goal\n\n## Current Level\n\n## Constraints\n\n## Practice Environment\n",
     "research-brief.md": "# Research Brief\n\n## Five Perspectives\n\n## Conflict Map\n\n## Integrated Brief\n\n## Peer Review\n",
     "learning-path.md": "# Learning Path\n\n## Resource Triage\n\n## Learning Ladder\n\n## One-Week Route\n",
@@ -162,6 +166,44 @@ def write_if_missing(path: Path, content: str) -> None:
         path.write_text(content, encoding="utf-8")
 
 
+def update_progress_index(learning_dir: Path, state: dict[str, Any]) -> None:
+    mastery = state.get("mastery", [])
+    latest = mastery[-1] if mastery else None
+    latest_lines = ""
+    if latest:
+        weak = latest.get("weak_concepts") or []
+        if isinstance(weak, list):
+            weak_text = "; ".join(str(item) for item in weak) or "None recorded"
+        else:
+            weak_text = str(weak)
+        latest_lines = (
+            f"- Latest stage: {latest.get('stage')}\n"
+            f"- Latest score: {latest.get('score')}\n"
+            f"- Weak concepts: {weak_text}\n"
+            f"- Latest next task: {latest.get('next_task')}\n"
+        )
+    else:
+        latest_lines = "- No assessment recorded yet.\n"
+
+    content = (
+        "# Progress Index\n\n"
+        "## Current Position\n\n"
+        f"- Topic: {state.get('topic')}\n"
+        f"- Mode: {state.get('mode')}\n"
+        f"- Current step: {state.get('current_step')}\n"
+        f"- Next step: {state.get('next_step')}\n"
+        f"- Updated at: {state.get('updated_at')}\n\n"
+        "## Latest Assessment\n\n"
+        f"{latest_lines}\n"
+        "## Fast Resume Protocol\n\n"
+        "1. Read `learning_state.json` and this file first.\n"
+        "2. Read only the current-stage Markdown file unless the learner asks for a broader review.\n"
+        "3. Prefer a concise answer plus one focused retrieval question.\n"
+        "4. Update this index after scoring, changing stage, or setting the next task.\n"
+    )
+    (learning_dir / "progress-index.md").write_text(content, encoding="utf-8")
+
+
 def project_summary(project_path: Path, max_files: int) -> dict[str, Any]:
     files: list[str] = []
     important: list[str] = []
@@ -253,6 +295,7 @@ def init_learning(args: argparse.Namespace) -> dict[str, Any]:
     if mode == "project":
         for filename, template in PROJECT_DOC_FILES.items():
             write_if_missing(learning_dir / filename, template)
+    update_progress_index(learning_dir, state)
 
     return result_payload("initialized", learning_dir, state)
 
@@ -337,6 +380,7 @@ def record_assessment(args: argparse.Namespace) -> dict[str, Any]:
     state.pop("_state_path", None)
     state.pop("_learning_dir", None)
     write_json(learning_dir / "learning_state.json", state)
+    update_progress_index(learning_dir, state)
     return result_payload("assessment_recorded", learning_dir, state)
 
 

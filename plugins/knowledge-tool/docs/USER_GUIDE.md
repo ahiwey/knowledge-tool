@@ -46,6 +46,8 @@ Typical files:
 
 ```text
 learning_state.json
+progress-index.md
+context-summary.md
 README.md
 interview.md
 research-brief.md
@@ -90,6 +92,18 @@ The plugin includes tests by default:
 During a test, KnowledgeTool asks one question at a time, scores your answer from 0-10, identifies weak concepts, and records the next task.
 
 KnowledgeTool should avoid answer-order clues. For multiple-choice, matching, and classification checks, it should shuffle or vary option order so you cannot pass by simply repeating the order of concepts introduced immediately before the question.
+
+Questions should also be precise about lifecycle behavior. For example, when teaching `LaunchedEffect(Unit)`, KnowledgeTool should distinguish "starts once at this call site" from "keeps collecting while the Composable remains in composition".
+
+## Speed And Context Use
+
+KnowledgeTool is designed to resume from compact files first:
+
+- `learning_state.json` stores the current step and next task.
+- `progress-index.md` stores the latest score, weak concepts, and fast resume notes.
+- `context-summary.md` stores a compact learner model for long sessions.
+
+The plugin cannot force Codex to change the selected model or app speed mode by itself. It does, however, default to a fast tutoring style: short answers, minimal context loading, and one focused question at a time.
 
 ## Moving Or Backing Up Learning Files
 

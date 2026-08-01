@@ -32,8 +32,20 @@ Keep plugin source and user learning content separate. Never write learning note
 4. For continuation, run:
    `python <plugin>/scripts/knowledge_tool.py continue --query "<topic>"` or omit `--query` for latest.
 5. Read the returned JSON. Use `learning_dir` and `files` from the script as the only destinations for generated learning content.
+6. For continuation, read `learning_state.json` and `progress-index.md` first. Read longer files only when the current step or learner's question requires them.
 
 If `continue` returns multiple candidates, show the candidates and ask the user which one to continue.
+
+## Fast Resume And Context Budget
+
+KnowledgeTool should optimize for fast tutoring turns, not exhaustive context loading:
+
+- Default to concise, direct answers in the user's language, followed by at most one focused retrieval question.
+- Use `progress-index.md` as the first human-readable index for where the learner is, recent scores, weak concepts, and the next task.
+- Keep `context-summary.md` as a compact learner model and concept summary when a session becomes long.
+- After each assessment, stage change, or meaningful correction, update `assessment.md` and use `scripts/knowledge_tool.py assess` so `learning_state.json` and `progress-index.md` stay current.
+- Avoid rereading all learning documents on every turn. Prefer the current-stage file and the index.
+- The plugin cannot force Codex to switch model or speed modes by itself. If the host exposes a model or speed control, follow the user's fast-mode preference. Otherwise, emulate fast mode through shorter answers, smaller context reads, and one-question-at-a-time teaching.
 
 ## Learning Workflow
 
@@ -63,6 +75,7 @@ Include assessment throughout the flow, even if the user did not ask for tests. 
 - During active testing: ask one question at a time, wait for the learner's answer, score 0-10, identify gaps, and update `assessment.md`.
 - Avoid answer-order leakage. Do not make answers follow the same order as options, examples, state buckets, or concepts introduced immediately before the question. Randomize or deliberately vary option order, scenario order, and answer mappings. For matching/classification questions, include at least one reordered scenario or distractor, and do not ask questions where the correct response is simply "the same order as above".
 - When asking multi-part questions, prefer scenario labels such as A/B/C/D or realistic named cases over lists whose answer is obvious from position. Record the canonical answer in `assessment.md` only after the learner responds.
+- Make questions precise about lifecycle and duration. For effect APIs such as `LaunchedEffect`, distinguish "starts once", "keeps collecting while in composition", "restarts when key changes", and "is cancelled when leaving composition". Do not phrase a sustained listener as if it only listens once.
 
 Use `scripts/knowledge_tool.py assess` after scoring to record the score, weak concepts, and next task in `learning_state.json`.
 
