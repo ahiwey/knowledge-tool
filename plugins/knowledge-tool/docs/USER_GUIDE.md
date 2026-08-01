@@ -89,6 +89,8 @@ The plugin includes tests by default:
 
 During a test, KnowledgeTool asks one question at a time, scores your answer from 0-10, identifies weak concepts, and records the next task.
 
+KnowledgeTool should avoid answer-order clues. For multiple-choice, matching, and classification checks, it should shuffle or vary option order so you cannot pass by simply repeating the order of concepts introduced immediately before the question.
+
 ## Moving Or Backing Up Learning Files
 
 Learning folders are plain Markdown and JSON. You can move them to another machine or directory. Update `~/.knowledge-tool/config.json` so `default_learning_root` points at the new location.

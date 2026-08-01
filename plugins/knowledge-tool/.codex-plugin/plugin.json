@@ -1,6 +1,6 @@
 {
   "name": "knowledge-tool",
-  "version": "0.1.0",
+  "version": "0.1.0+codex.20260801183743",
   "description": "A Codex learning workflow plugin that creates external, resumable study folders for topics and code projects.",
   "author": {
     "name": "KnowledgeTool"

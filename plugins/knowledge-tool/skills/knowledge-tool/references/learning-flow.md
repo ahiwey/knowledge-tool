@@ -111,6 +111,14 @@ End with a final small project that proves practical use.
 
 Use retrieval practice. Do not give all answers at once.
 
+Assessment design must avoid order bias:
+
+- Do not place choices, scenarios, and expected answers in matching order.
+- Shuffle or intentionally vary option order for multiple-choice, matching, and classification questions.
+- Avoid questions where the learner can answer by echoing the previous list order rather than understanding the concept.
+- For multi-part classification, use realistic scenario labels and mix the correct categories.
+- Keep the canonical answer private until after the learner answers, then record the score and explanation.
+
 Question sequence:
 
 - Questions 1-3: beginner

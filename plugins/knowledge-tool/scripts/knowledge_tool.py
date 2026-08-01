@@ -25,6 +25,7 @@ DEFAULT_CONFIG: dict[str, Any] = {
     "default_learning_root": None,
     "recent_limit": 10,
     "assessment_difficulty": "adaptive",
+    "assessment_order_bias": "avoid",
     "language": "zh-CN",
     "project_scan_max_files": 200,
 }
@@ -34,7 +35,7 @@ DOC_FILES = {
     "interview.md": "# Learner Interview\n\n## Goal\n\n## Current Level\n\n## Constraints\n\n## Practice Environment\n",
     "research-brief.md": "# Research Brief\n\n## Five Perspectives\n\n## Conflict Map\n\n## Integrated Brief\n\n## Peer Review\n",
     "learning-path.md": "# Learning Path\n\n## Resource Triage\n\n## Learning Ladder\n\n## One-Week Route\n",
-    "assessment.md": "# Assessment\n\n## Diagnostic Questions\n\n## Retrieval Practice Log\n",
+    "assessment.md": "# Assessment\n\n## Diagnostic Questions\n\n## Assessment Design Notes\n\nAvoid answer-order clues. Shuffle or vary choices, scenarios, and category mappings so learners cannot answer by repeating the order of concepts shown before the question.\n\n## Retrieval Practice Log\n",
     "feynman-log.md": "# Feynman Loop\n\n## Weak Concepts\n\n## Teach-Back Attempts\n",
     "cheatsheet.md": "# One-Page Cheat Sheet\n\n## Definition\n\n## Core Ideas\n\n## Examples\n\n## Checklist\n\n## Rapid Q&A\n",
 }
