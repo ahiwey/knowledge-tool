@@ -126,6 +126,7 @@ Assessment design must avoid order bias:
 
 - Do not place choices, scenarios, and expected answers in matching order.
 - Shuffle or intentionally vary option order for multiple-choice, matching, and classification questions.
+- Avoid making the number of scenarios equal the number of answer choices unless there is a strong pedagogical reason. Include extra choices, repeated choices, plausible distractors, or a "depends on assumptions" answer to prevent one-to-one guessing.
 - Avoid questions where the learner can answer by echoing the previous list order rather than understanding the concept.
 - For multi-part classification, use realistic scenario labels and mix the correct categories.
 - Keep the canonical answer private until after the learner answers, then record the score and explanation.
