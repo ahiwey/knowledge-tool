@@ -91,6 +91,8 @@ The plugin includes tests by default:
 
 During a test, KnowledgeTool asks one question at a time, scores your answer from 0-10, gives the canonical answer, identifies weak concepts, and records the next task.
 
+KnowledgeTool should prefer free-recall questions. It should usually ask you to produce the answer from memory rather than giving an answer bank, unless you ask for choices or need beginner scaffolding.
+
 KnowledgeTool should avoid answer-order clues. For multiple-choice, matching, and classification checks, it should shuffle or vary option order so you cannot pass by simply repeating the order of concepts introduced immediately before the question.
 
 It should also avoid count-matching clues. For example, it should not regularly ask three scenarios with exactly three answer choices where each choice is used once. Good checks may reuse an answer, include extra choices, or include a "depends" option.

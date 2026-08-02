@@ -124,6 +124,7 @@ Use retrieval practice. Do not give all answers at once.
 
 Assessment design must avoid order bias:
 
+- Prefer free recall first. For most retrieval checks, do not show an answer bank or choices; ask the learner to produce the concept, API, state holder, or mechanism from memory and briefly justify it.
 - Do not place choices, scenarios, and expected answers in matching order.
 - Shuffle or intentionally vary option order for multiple-choice, matching, and classification questions.
 - Avoid making the number of scenarios equal the number of answer choices unless there is a strong pedagogical reason. Include extra choices, repeated choices, plausible distractors, or a "depends on assumptions" answer to prevent one-to-one guessing.
