@@ -131,6 +131,8 @@ Assessment design must avoid order bias:
 - Keep the canonical answer private until after the learner answers, then record the score and explanation.
 - Phrase lifecycle questions precisely. If a construct starts a coroutine once but keeps collecting until the Composable leaves composition, say that explicitly in the question stem.
 - For APIs with keys or lifecycle behavior, ask for both the trigger and duration, for example: "When does it start, when does it restart, and when is it cancelled?"
+- For scenario questions, include the assumptions that determine the correct answer. In event-delivery questions, specify whether an event can be dropped, should wait for the UI to return, must be consumed by one collector, or should be broadcast to all active collectors.
+- After the learner answers, always provide the canonical answer. Then score the learner's answer, explain what was correct, correct gaps, and ask only one focused follow-up.
 
 Question sequence:
 
@@ -142,6 +144,7 @@ Question sequence:
 After every learner answer:
 
 - Score 0-10
+- State the canonical answer clearly
 - Say what is correct
 - Identify precise gaps or errors
 - Re-explain only the missing part

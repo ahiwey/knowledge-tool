@@ -89,11 +89,13 @@ The plugin includes tests by default:
 - Hands-on tasks for practical topics
 - A short recovery quiz whenever you continue later
 
-During a test, KnowledgeTool asks one question at a time, scores your answer from 0-10, identifies weak concepts, and records the next task.
+During a test, KnowledgeTool asks one question at a time, scores your answer from 0-10, gives the canonical answer, identifies weak concepts, and records the next task.
 
 KnowledgeTool should avoid answer-order clues. For multiple-choice, matching, and classification checks, it should shuffle or vary option order so you cannot pass by simply repeating the order of concepts introduced immediately before the question.
 
 Questions should also be precise about lifecycle behavior. For example, when teaching `LaunchedEffect(Unit)`, KnowledgeTool should distinguish "starts once at this call site" from "keeps collecting while the Composable remains in composition".
+
+Scenario questions should include the assumptions that change the answer. For example, event-delivery questions should say whether the event may be dropped, should be buffered until the UI returns, should be consumed by one collector, or should be broadcast to all active collectors.
 
 ## Speed And Context Use
 

@@ -73,9 +73,11 @@ Include assessment throughout the flow, even if the user did not ask for tests. 
 - After each learning level: 3 multiple-choice questions, 2 short-answer questions, and 1 hands-on task.
 - When resuming: a 3-5 minute recovery quiz before deciding whether to continue, review, or enter Feynman remediation.
 - During active testing: ask one question at a time, wait for the learner's answer, score 0-10, identify gaps, and update `assessment.md`.
+- After every learner answer, provide the canonical answer before or alongside feedback. Do not only comment on the learner's response. The feedback shape should be: score, canonical answer, what the learner got right, precise corrections, and one next question or task.
 - Avoid answer-order leakage. Do not make answers follow the same order as options, examples, state buckets, or concepts introduced immediately before the question. Randomize or deliberately vary option order, scenario order, and answer mappings. For matching/classification questions, include at least one reordered scenario or distractor, and do not ask questions where the correct response is simply "the same order as above".
 - When asking multi-part questions, prefer scenario labels such as A/B/C/D or realistic named cases over lists whose answer is obvious from position. Record the canonical answer in `assessment.md` only after the learner responds.
 - Make questions precise about lifecycle and duration. For effect APIs such as `LaunchedEffect`, distinguish "starts once", "keeps collecting while in composition", "restarts when key changes", and "is cancelled when leaving composition". Do not phrase a sustained listener as if it only listens once.
+- Make scenario questions explicit about assumptions that change the answer. For event-flow questions, state whether the screen is still alive, whether the event may be dropped, whether delayed delivery is desired, whether multiple collectors exist, and whether the event should be consumed once or broadcast. Avoid vague prompts such as "the page is not in composition" without saying whether the expected UX is to drop, buffer, or persist the event.
 
 Use `scripts/knowledge_tool.py assess` after scoring to record the score, weak concepts, and next task in `learning_state.json`.
 
