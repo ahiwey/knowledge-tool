@@ -122,6 +122,15 @@ End with a final small project that proves practical use.
 
 Use retrieval practice. Do not give all answers at once.
 
+Assessment design must pass a question quality gate before order-bias checks:
+
+- Test one main concept, boundary, or skill per question unless explicitly running an integration drill.
+- State the assumptions that change the answer.
+- Make the expected answer shape clear: explanation, classification with reasons, code sketch, tradeoff, or correction.
+- Match the difficulty to the learner's recent answers.
+- Prefer questions where a wrong answer reveals a useful misconception.
+- Use plain language first, then name the technical term.
+
 Assessment design must avoid order bias:
 
 - Prefer free recall first. For most retrieval checks, do not show an answer bank or choices; ask the learner to produce the concept, API, state holder, or mechanism from memory and briefly justify it.
@@ -135,6 +144,7 @@ Assessment design must avoid order bias:
 - For APIs with keys or lifecycle behavior, ask for both the trigger and duration, for example: "When does it start, when does it restart, and when is it cancelled?"
 - For scenario questions, include the assumptions that determine the correct answer. In event-delivery questions, specify whether an event can be dropped, should wait for the UI to return, must be consumed by one collector, or should be broadcast to all active collectors.
 - After the learner answers, always provide the canonical answer. Then score the learner's answer, explain what was correct, correct gaps, and ask only one focused follow-up.
+- If the learner flags a question as vague, inaccurate, too dependent on visible choices, or poorly scaled, pause the quiz flow, record the teaching defect if useful, and rewrite the next question using the quality gate.
 
 Question sequence:
 

@@ -49,7 +49,7 @@ KnowledgeTool should optimize for fast tutoring turns, not exhaustive context lo
 
 ## Learning Workflow
 
-Read `references/learning-flow.md` before generating or continuing the study content. Follow the stages in order unless the saved state says the learner is repeating a remediation loop.
+Read `references/learning-flow.md` before generating or continuing the study content. Before asking mastery-check, retrieval-practice, or Feynman-loop questions, also read and apply `references/question-design.md`. Follow the stages in order unless the saved state says the learner is repeating a remediation loop.
 
 Each stage must update the appropriate Markdown file and end with a concrete next step:
 
@@ -80,6 +80,8 @@ Include assessment throughout the flow, even if the user did not ask for tests. 
 - When asking multi-part questions, prefer scenario labels such as A/B/C/D or realistic named cases over lists whose answer is obvious from position. Record the canonical answer in `assessment.md` only after the learner responds.
 - Make questions precise about lifecycle and duration. For effect APIs such as `LaunchedEffect`, distinguish "starts once", "keeps collecting while in composition", "restarts when key changes", and "is cancelled when leaving composition". Do not phrase a sustained listener as if it only listens once.
 - Make scenario questions explicit about assumptions that change the answer. For event-flow questions, state whether the screen is still alive, whether the event may be dropped, whether delayed delivery is desired, whether multiple collectors exist, and whether the event should be consumed once or broadcast. Avoid vague prompts such as "the page is not in composition" without saying whether the expected UX is to drop, buffer, or persist the event.
+- Run a question quality gate before asking: one main concept, explicit assumptions, clear expected answer shape, learner-appropriate difficulty, and useful signal from likely wrong answers. Prefer plain-language situations before naming terms.
+- If the learner says a question is unclear, inaccurate, too easy because of visible choices, or poorly scaled, treat that as assessment feedback. Record the teaching issue when useful, rewrite the question, and continue with the improved version.
 
 Use `scripts/knowledge_tool.py assess` after scoring to record the score, weak concepts, and next task in `learning_state.json`.
 

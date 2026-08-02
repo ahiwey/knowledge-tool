@@ -26,6 +26,7 @@ DEFAULT_CONFIG: dict[str, Any] = {
     "recent_limit": 10,
     "assessment_difficulty": "adaptive",
     "assessment_order_bias": "avoid",
+    "question_quality_mode": "strict",
     "response_mode": "fast",
     "context_policy": "compact",
     "language": "zh-CN",
@@ -39,7 +40,7 @@ DOC_FILES = {
     "interview.md": "# Learner Interview\n\n## Goal\n\n## Current Level\n\n## Constraints\n\n## Practice Environment\n",
     "research-brief.md": "# Research Brief\n\n## Five Perspectives\n\n## Conflict Map\n\n## Integrated Brief\n\n## Peer Review\n",
     "learning-path.md": "# Learning Path\n\n## Resource Triage\n\n## Learning Ladder\n\n## One-Week Route\n",
-    "assessment.md": "# Assessment\n\n## Diagnostic Questions\n\n## Assessment Design Notes\n\nPrefer free recall over recognition. Do not provide an answer bank or choices unless the learner asks for them, beginner scaffolding is needed, or the task specifically requires multiple-choice practice.\n\nAvoid answer-order clues. Shuffle or vary choices, scenarios, and category mappings so learners cannot answer by repeating the order of concepts shown before the question. Avoid count-matching clues too: do not habitually make scenario count equal answer-choice count; reuse answers, add plausible distractors, or include a depends/none option when useful.\n\nAfter each learner answer, record the canonical answer, score, correct points, corrections, and the next focused task. For scenario questions, write the assumptions that determine the answer, such as whether an event may be dropped, buffered, consumed once, or broadcast.\n\n## Retrieval Practice Log\n",
+    "assessment.md": "# Assessment\n\n## Diagnostic Questions\n\n## Assessment Design Notes\n\nBefore asking, run the question quality gate: test one main concept, state assumptions that change the answer, make the answer shape clear, match difficulty to the learner, and prefer questions where wrong answers reveal useful misconceptions. Use plain language first, then terminology.\n\nPrefer free recall over recognition. Do not provide an answer bank or choices unless the learner asks for them, beginner scaffolding is needed, or the task specifically requires multiple-choice practice.\n\nAvoid answer-order clues. Shuffle or vary choices, scenarios, and category mappings so learners cannot answer by repeating the order of concepts shown before the question. Avoid count-matching clues too: do not habitually make scenario count equal answer-choice count; reuse answers, add plausible distractors, or include a depends/none option when useful.\n\nAfter each learner answer, record the canonical answer, score, correct points, corrections, and the next focused task. For scenario questions, write the assumptions that determine the answer, such as whether an event may be dropped, buffered, consumed once, or broadcast. If the learner flags a question as vague or poorly scaled, record the teaching issue and rewrite the next question.\n\n## Retrieval Practice Log\n",
     "feynman-log.md": "# Feynman Loop\n\n## Weak Concepts\n\n## Teach-Back Attempts\n",
     "cheatsheet.md": "# One-Page Cheat Sheet\n\n## Definition\n\n## Core Ideas\n\n## Examples\n\n## Checklist\n\n## Rapid Q&A\n",
 }

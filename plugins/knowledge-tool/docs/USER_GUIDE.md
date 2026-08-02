@@ -93,6 +93,8 @@ During a test, KnowledgeTool asks one question at a time, scores your answer fro
 
 KnowledgeTool should prefer free-recall questions. It should usually ask you to produce the answer from memory rather than giving an answer bank, unless you ask for choices or need beginner scaffolding.
 
+Before asking, KnowledgeTool should run a question quality check: one main concept, clear assumptions, clear answer shape, and difficulty matched to your recent answers. Questions should first describe a concrete situation in plain language, then use technical terms.
+
 KnowledgeTool should avoid answer-order clues. For multiple-choice, matching, and classification checks, it should shuffle or vary option order so you cannot pass by simply repeating the order of concepts introduced immediately before the question.
 
 It should also avoid count-matching clues. For example, it should not regularly ask three scenarios with exactly three answer choices where each choice is used once. Good checks may reuse an answer, include extra choices, or include a "depends" option.
