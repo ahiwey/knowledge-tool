@@ -11,14 +11,17 @@ SCRIPT = Path(__file__).resolve().parents[1] / "scripts" / "knowledge_tool.py"
 
 
 class KnowledgeToolCliTests(unittest.TestCase):
-    def run_cli(self, *args: str) -> dict:
+    def run_cli(self, *args: str, config_path: Path | None = None) -> dict:
+        env = {**os.environ, "PYTHONIOENCODING": "utf-8"}
+        if config_path:
+            env["KNOWLEDGE_TOOL_CONFIG"] = str(config_path)
         result = subprocess.run(
             [sys.executable, str(SCRIPT), *args],
             check=True,
             capture_output=True,
             text=True,
             encoding="utf-8",
-            env={**os.environ, "PYTHONIOENCODING": "utf-8"},
+            env=env,
         )
         return json.loads(result.stdout)
 
@@ -176,6 +179,97 @@ class KnowledgeToolCliTests(unittest.TestCase):
             )
             self.assertEqual(state["next_step"], "Write a code example")
             self.assertFalse((root / "compose" / "assessment-history.jsonl").exists())
+
+    def test_new_topic_requires_storage_confirmation_without_config(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            config_path = Path(temp) / "config.json"
+            payload = self.run_cli(
+                "init",
+                "--topic",
+                "Compose",
+                config_path=config_path,
+            )
+            self.assertEqual(payload["status"], "needs_storage_confirmation")
+            self.assertFalse(config_path.exists())
+
+    def test_configured_root_is_used_across_working_directories(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            config_path = temp_path / "config.json"
+            root = temp_path / "global-learning"
+            self.run_cli(
+                "config",
+                "--set-learning-root",
+                str(root),
+                config_path=config_path,
+            )
+            confirmation = self.run_cli(
+                "init",
+                "--topic",
+                "Compose",
+                "--slug",
+                "compose",
+                config_path=config_path,
+            )
+            initialized = self.run_cli(
+                "init",
+                "--topic",
+                "Compose",
+                "--slug",
+                "compose",
+                "--confirmed-root",
+                config_path=config_path,
+            )
+            resumed = self.run_cli(
+                "continue",
+                "--query",
+                "Compose",
+                config_path=config_path,
+            )
+            self.assertEqual(
+                confirmation["status"], "needs_new_topic_root_confirmation"
+            )
+            self.assertEqual(initialized["status"], "initialized")
+            self.assertEqual(resumed["status"], "resume_match")
+            self.assertTrue(Path(resumed["learning_dir"]).samefile(root / "compose"))
+
+    def test_migrate_topic_preserves_source_and_sets_default(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            config_path = temp_path / "config.json"
+            source_root = temp_path / "old-learning"
+            target_root = temp_path / "new-learning"
+            self.run_cli(
+                "init",
+                "--topic",
+                "Compose",
+                "--slug",
+                "compose",
+                "--root",
+                str(source_root),
+                config_path=config_path,
+            )
+            payload = self.run_cli(
+                "migrate-topic",
+                "--slug",
+                "compose",
+                "--source-root",
+                str(source_root),
+                "--target-root",
+                str(target_root),
+                "--set-default",
+                config_path=config_path,
+            )
+            self.assertEqual(payload["status"], "topic_migrated")
+            self.assertTrue((source_root / "compose" / "learning_state.json").exists())
+            migrated_state = json.loads(
+                (target_root / "compose" / "learning_state.json").read_text(
+                    encoding="utf-8"
+                )
+            )
+            self.assertEqual(migrated_state["learning_root"], str(target_root.resolve()))
+            config = json.loads(config_path.read_text(encoding="utf-8"))
+            self.assertEqual(config["default_learning_root"], str(target_root.resolve()))
 
 
 if __name__ == "__main__":

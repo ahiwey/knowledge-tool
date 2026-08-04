@@ -40,6 +40,26 @@ Specify where learning files should be saved:
 @KnowledgeTool Android Compose 保存到 D:\Learning
 ```
 
+Set the default used by future tasks:
+
+```text
+@KnowledgeTool 设置默认学习目录为 D:\Learning
+```
+
+## Storage Setup
+
+Before creating every new topic, KnowledgeTool confirms its save location. On first use it recommends a stable user-data directory:
+
+```text
+~/Documents/KnowledgeTool/learning
+```
+
+After confirmation, the root is stored in `~/.knowledge-tool/config.json`. Continuing an existing topic uses that root automatically, even from a different Codex task or workspace.
+
+The helper enforces this confirmation: creating a topic with a configured default still requires `--confirmed-root`, while an explicit `--root` already counts as the learner's choice.
+
+Do not use the plugin source or plugin cache as the learning root. Plugin updates and reinstalls may replace those directories. A custom external directory is safe, including a synced or backed-up folder.
+
 ## What Gets Created
 
 Each topic has its own directory:
@@ -131,4 +151,4 @@ The plugin cannot force Codex to change the selected model or app speed mode by 
 
 ## Moving Or Backing Up Learning Files
 
-Learning folders are plain Markdown and JSON. You can move them to another machine or directory. Update `~/.knowledge-tool/config.json` so `default_learning_root` points at the new location.
+Learning folders are plain Markdown and JSON. Use the `migrate-topic` helper to copy a topic to another root while preserving the source, then set the new root as default. You can also update `~/.knowledge-tool/config.json` through the `config --set-learning-root` command.

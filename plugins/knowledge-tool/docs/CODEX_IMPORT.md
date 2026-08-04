@@ -47,6 +47,7 @@ Example:
 ```json
 {
   "default_learning_root": "D:\\Learning",
+  "confirm_new_topic_root": true,
   "recent_limit": 10,
   "assessment_difficulty": "adaptive",
   "response_mode": "fast",
@@ -58,11 +59,13 @@ Example:
 }
 ```
 
-If `default_learning_root` is null or missing, the default root is:
+If `default_learning_root` is null or missing, KnowledgeTool asks the learner to confirm a location and recommends:
 
 ```text
-<current workspace>/.knowledge-tool/learning
+~/Documents/KnowledgeTool/learning
 ```
+
+The plugin does not silently fall back to the current workspace because a later Codex task may use a different workspace and fail to find the history.
 
 ## Data Separation
 

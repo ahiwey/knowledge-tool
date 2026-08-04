@@ -1,6 +1,6 @@
 {
   "name": "knowledge-tool",
-  "version": "0.1.0+codex.20260804174959",
+  "version": "0.1.0+codex.20260804181311",
   "description": "A token-efficient Codex learning plugin with resumable roadmaps, mastery tracking, sprint tutoring, and external study folders.",
   "author": {
     "name": "KnowledgeTool"

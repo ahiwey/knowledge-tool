@@ -1,5 +1,6 @@
 {
   "default_learning_root": null,
+  "confirm_new_topic_root": true,
   "recent_limit": 10,
   "assessment_difficulty": "adaptive",
   "assessment_order_bias": "avoid",

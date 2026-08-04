@@ -9,7 +9,7 @@ Use this skill when the user asks with `@KnowledgeTool ...` or wants a structure
 
 ## Core Rule
 
-Keep plugin source and user learning content separate. Never write learning notes, progress, generated questions, project maps, or user answers inside the plugin directory. Use `scripts/knowledge_tool.py` to create or locate the external learning directory before generating user content.
+Keep plugin source and user learning content separate. Never write learning notes, progress, generated questions, project maps, or user answers inside the plugin directory, including a `learning/` child of the plugin. Plugin upgrades and cache replacement can remove or replace that directory. Use a stable user-data directory such as `~/Documents/KnowledgeTool/learning`.
 
 ## Command Patterns
 
@@ -19,22 +19,26 @@ Keep plugin source and user learning content separate. Never write learning note
 - `@KnowledgeTool 继续<topic>` or `@KnowledgeTool 继续 <topic>`: resume a matching topic, for example `@KnowledgeTool 继续Android Compose`.
 - `@KnowledgeTool 进度` or `@KnowledgeTool <topic>进度`: show the compact dashboard before teaching.
 - `保存到 <path>`: override the learning root for that request.
+- `设置默认学习目录为 <path>`: persist the root used by future tasks.
 
 ## Setup And State
 
-1. Resolve the learning root:
-   - If the user says `保存到 <path>`, pass that path to the script with `--root`.
-   - Otherwise let the script read `~/.knowledge-tool/config.json`.
-   - If no config exists, the script defaults to `<current workspace>/.knowledge-tool/learning`.
-2. For a new topic, run:
-   `python <plugin>/scripts/knowledge_tool.py init --topic "<topic>"`
-3. For a code project, run:
+1. Before starting every new topic, run `config` and confirm the save root with the learner.
+   - If no root is configured, offer the returned `recommended_learning_root`, normally `~/Documents/KnowledgeTool/learning`, and wait for confirmation or a custom path.
+   - If a root is configured, ask whether to save the new topic there or use another location.
+   - Keep this to one short question. Do not begin the interview or create files before the answer.
+2. Persist the first accepted default with `config --set-learning-root <path>` or `config --use-recommended-root`. If the learner explicitly chooses a one-topic override, pass `--root` to `init` without changing the default.
+3. After the learner accepts the configured default, run:
+   `python <plugin>/scripts/knowledge_tool.py init --topic "<topic>" --confirmed-root`
+   When the learner chooses another root, pass `--root <path>` instead; an explicit root counts as confirmation.
+4. For a code project, run:
    `python <plugin>/scripts/knowledge_tool.py init --topic "<project name or topic>" --mode project --project-path "<path>"`
-4. For continuation, run:
+5. For continuation, do not ask for the location again. Run:
    `python <plugin>/scripts/knowledge_tool.py continue --query "<topic>"` or omit `--query` for latest.
-5. Read the returned JSON. Use `learning_dir` as the only destination for generated learning content.
-6. For continuation or progress questions, run `status --slug <slug>` and use only `resume_snapshot` first. Read `progress-index.md` only when the learner asks for detail. Do not read `assessment-history.jsonl` during ordinary tutoring.
-7. After the interview, create a topic roadmap JSON with modules, weighted concepts, and `stage_patterns`, then attach it with `plan --slug <slug> --file <roadmap.json>`. Without a roadmap, report mastery of completed checks but label total course progress as unknown.
+6. If continuation returns `needs_storage_confirmation`, explain that no global root is configured and ask for the existing learning root; do not claim the history is missing.
+7. Read the returned JSON. Use `learning_dir` as the only destination for generated learning content.
+8. For continuation or progress questions, run `status --slug <slug>` and use only `resume_snapshot` first. Read `progress-index.md` only when the learner asks for detail. Do not read `assessment-history.jsonl` during ordinary tutoring.
+9. After the interview, create a topic roadmap JSON with modules, weighted concepts, and `stage_patterns`, then attach it with `plan --slug <slug> --file <roadmap.json>`. Without a roadmap, report mastery of completed checks but label total course progress as unknown.
 
 If `continue` returns multiple candidates, show the candidates and ask the user which one to continue.
 

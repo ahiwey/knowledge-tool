@@ -14,6 +14,7 @@ import hashlib
 import json
 import os
 import re
+import shutil
 import statistics
 import sys
 from pathlib import Path
@@ -21,9 +22,15 @@ from typing import Any
 
 
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
-CONFIG_PATH = Path.home() / ".knowledge-tool" / "config.json"
+CONFIG_PATH = Path(
+    os.environ.get(
+        "KNOWLEDGE_TOOL_CONFIG",
+        str(Path.home() / ".knowledge-tool" / "config.json"),
+    )
+).expanduser().resolve()
 DEFAULT_CONFIG: dict[str, Any] = {
     "default_learning_root": None,
+    "confirm_new_topic_root": True,
     "recent_limit": 10,
     "assessment_difficulty": "adaptive",
     "assessment_order_bias": "avoid",
@@ -118,6 +125,17 @@ def ensure_config() -> Path:
     return CONFIG_PATH
 
 
+def write_config(config: dict[str, Any]) -> None:
+    CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    write_json(CONFIG_PATH, config)
+
+
+def recommended_learning_root() -> Path:
+    documents = Path.home() / "Documents"
+    parent = documents if documents.exists() else Path.home()
+    return (parent / "KnowledgeTool" / "learning").resolve()
+
+
 def normalize_text(value: str) -> str:
     return re.sub(r"[^a-z0-9]+", "", value.lower())
 
@@ -133,13 +151,12 @@ def slugify(value: str, prefix: str | None = None) -> str:
     return ascii_slug[:96].strip("-")
 
 
-def resolve_learning_root(root: str | None) -> Path:
-    config = load_config()
-    selected = root or config.get("default_learning_root")
-    if selected:
-        learning_root = Path(os.path.expanduser(str(selected))).resolve()
-    else:
-        learning_root = (Path.cwd() / ".knowledge-tool" / "learning").resolve()
+def validate_learning_root(learning_root: Path) -> Path:
+    learning_root = learning_root.expanduser().resolve()
+    if learning_root == PLUGIN_ROOT:
+        raise SystemExit(
+            f"Refusing to write learning content inside plugin source: {learning_root}"
+        )
     try:
         learning_root.relative_to(PLUGIN_ROOT)
     except ValueError:
@@ -147,6 +164,43 @@ def resolve_learning_root(root: str | None) -> Path:
     raise SystemExit(
         f"Refusing to write learning content inside plugin source: {learning_root}"
     )
+
+
+def configured_learning_root() -> Path | None:
+    selected = load_config().get("default_learning_root")
+    if not selected:
+        return None
+    return validate_learning_root(Path(os.path.expanduser(str(selected))))
+
+
+def resolve_learning_root(root: str | None) -> Path:
+    if root:
+        return validate_learning_root(Path(os.path.expanduser(root)))
+    configured = configured_learning_root()
+    if configured:
+        return configured
+    raise SystemExit(
+        "No learning root is configured. Run `config --use-recommended-root` "
+        "or `config --set-learning-root <path>` after confirming the location."
+    )
+
+
+def storage_confirmation_payload(configured: Path | None = None) -> dict[str, Any]:
+    return {
+        "status": (
+            "needs_new_topic_root_confirmation"
+            if configured
+            else "needs_storage_confirmation"
+        ),
+        "config_path": str(CONFIG_PATH),
+        "recommended_learning_root": str(recommended_learning_root()),
+        "configured_learning_root": str(configured) if configured else None,
+        "message": (
+            "Ask the learner where to save this new topic. Offer the configured "
+            "root first when present, otherwise offer the recommended stable "
+            "user-data directory. Do not use the plugin directory."
+        ),
+    }
 
 
 def read_state(path: Path) -> dict[str, Any] | None:
@@ -525,6 +579,15 @@ def project_summary(project_path: Path, max_files: int) -> dict[str, Any]:
 
 
 def init_learning(args: argparse.Namespace) -> dict[str, Any]:
+    configured = configured_learning_root()
+    if not args.root and configured is None:
+        return storage_confirmation_payload()
+    if (
+        not args.root
+        and load_config().get("confirm_new_topic_root", True)
+        and not args.confirmed_root
+    ):
+        return storage_confirmation_payload(configured)
     learning_root = resolve_learning_root(args.root)
     learning_root.mkdir(parents=True, exist_ok=True)
 
@@ -614,6 +677,8 @@ def all_states(root: Path) -> list[dict[str, Any]]:
 
 
 def continue_learning(args: argparse.Namespace) -> dict[str, Any]:
+    if not args.root and configured_learning_root() is None:
+        return storage_confirmation_payload()
     learning_root = resolve_learning_root(args.root)
     states = all_states(learning_root)
     if not states:
@@ -840,13 +905,70 @@ def result_payload(status: str, learning_dir: Path, state: dict[str, Any]) -> di
     }
 
 
+def migrate_topic(args: argparse.Namespace) -> dict[str, Any]:
+    source_root = validate_learning_root(Path(os.path.expanduser(args.source_root)))
+    target_root = validate_learning_root(Path(os.path.expanduser(args.target_root)))
+    source_dir = (source_root / args.slug).resolve()
+    target_dir = (target_root / args.slug).resolve()
+    state = read_state(source_dir)
+    if not state:
+        raise SystemExit(f"No learning_state.json found for slug: {args.slug}")
+    if target_dir.exists() and any(target_dir.iterdir()):
+        raise SystemExit(f"Target topic directory is not empty: {target_dir}")
+
+    target_root.mkdir(parents=True, exist_ok=True)
+    shutil.copytree(source_dir, target_dir, dirs_exist_ok=True)
+    migrated_state = read_state(target_dir)
+    if not migrated_state:
+        raise SystemExit(f"Migration did not produce a valid state file: {target_dir}")
+    migrated_state["learning_root"] = str(target_root)
+    migrated_state["learning_dir"] = str(target_dir)
+    migrated_state["migrated_from"] = str(source_dir)
+    migrated_state["updated_at"] = now_iso()
+    migrated_state.pop("_state_path", None)
+    migrated_state.pop("_learning_dir", None)
+    write_json(target_dir / "learning_state.json", migrated_state)
+
+    if args.set_default:
+        config = load_config()
+        config["default_learning_root"] = str(target_root)
+        write_config(config)
+
+    return {
+        "status": "topic_migrated",
+        "source_preserved": str(source_dir),
+        "learning_dir": str(target_dir),
+        "default_learning_root": (
+            str(target_root) if args.set_default else load_config().get("default_learning_root")
+        ),
+        "resume_snapshot": build_progress_snapshot(target_dir, migrated_state),
+    }
+
+
 def show_config(args: argparse.Namespace) -> dict[str, Any]:
     if args.init:
         ensure_config()
+    selected: Path | None = None
+    if args.set_learning_root:
+        selected = validate_learning_root(
+            Path(os.path.expanduser(args.set_learning_root))
+        )
+    elif args.use_recommended_root:
+        selected = validate_learning_root(recommended_learning_root())
+    if selected:
+        selected.mkdir(parents=True, exist_ok=True)
+        config = load_config()
+        config["default_learning_root"] = str(selected)
+        write_config(config)
+    config = load_config()
+    configured = configured_learning_root()
     return {
-        "status": "config",
+        "status": "configured" if configured else "needs_storage_confirmation",
         "config_path": str(CONFIG_PATH),
-        "config": load_config(),
+        "recommended_learning_root": str(recommended_learning_root()),
+        "configured_learning_root": str(configured) if configured else None,
+        "configured_root_exists": configured.exists() if configured else False,
+        "config": config,
     }
 
 
@@ -860,6 +982,7 @@ def build_parser() -> argparse.ArgumentParser:
     init_cmd.add_argument("--project-path")
     init_cmd.add_argument("--root")
     init_cmd.add_argument("--slug")
+    init_cmd.add_argument("--confirmed-root", action="store_true")
     init_cmd.set_defaults(func=init_learning)
 
     cont = sub.add_parser("continue", help="Find a learning folder to resume")
@@ -911,8 +1034,20 @@ def build_parser() -> argparse.ArgumentParser:
     checkpoint.add_argument("--root")
     checkpoint.set_defaults(func=record_checkpoint)
 
+    migrate = sub.add_parser(
+        "migrate-topic", help="Copy a topic to another learning root without deleting the source"
+    )
+    migrate.add_argument("--slug", required=True)
+    migrate.add_argument("--source-root", required=True)
+    migrate.add_argument("--target-root", required=True)
+    migrate.add_argument("--set-default", action="store_true")
+    migrate.set_defaults(func=migrate_topic)
+
     config = sub.add_parser("config", help="Show or initialize configuration")
     config.add_argument("--init", action="store_true")
+    config_root = config.add_mutually_exclusive_group()
+    config_root.add_argument("--set-learning-root")
+    config_root.add_argument("--use-recommended-root", action="store_true")
     config.set_defaults(func=show_config)
     return parser
 
