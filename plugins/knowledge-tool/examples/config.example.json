@@ -2,6 +2,14 @@
   "default_learning_root": null,
   "recent_limit": 10,
   "assessment_difficulty": "adaptive",
+  "assessment_order_bias": "avoid",
+  "question_quality_mode": "strict",
+  "response_mode": "fast",
+  "context_policy": "compact",
+  "session_style": "sprint",
+  "progress_report_every": 3,
+  "mastery_threshold": 8.0,
+  "max_consecutive_remediation_turns": 1,
   "language": "zh-CN",
   "project_scan_max_files": 200
 }

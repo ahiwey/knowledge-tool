@@ -49,6 +49,10 @@ Example:
   "default_learning_root": "D:\\Learning",
   "recent_limit": 10,
   "assessment_difficulty": "adaptive",
+  "response_mode": "fast",
+  "context_policy": "compact",
+  "session_style": "sprint",
+  "progress_report_every": 3,
   "language": "zh-CN",
   "project_scan_max_files": 200
 }

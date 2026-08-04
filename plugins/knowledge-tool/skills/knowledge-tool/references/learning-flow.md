@@ -4,14 +4,44 @@ This workflow is based on a closed-loop AI learning method: path, test, compress
 
 ## Fast Context Protocol
 
-Before expanding the context, resume from `learning_state.json` and `progress-index.md`. Use `context-summary.md` for the compact learner model when the session is long. Avoid reading every learning document on every turn; load only the current-stage file unless the learner asks for a broader review.
+Before expanding context, run the helper's `status` command and use `resume_snapshot`. It is the hot index. `assessment-history.jsonl` and archived Markdown are cold history and should not be loaded during ordinary tutoring. Use `context-summary.md` only for stable preferences or unresolved context that the structured state cannot represent.
 
 Each teaching turn should usually provide:
 
 - A direct answer or correction
 - The smallest example that resolves the confusion
 - One focused retrieval question
-- A progress update in `assessment.md` and `progress-index.md` when scoring or changing the next task
+- A deterministic `assess` update when scoring or changing the next task
+
+When teaching advances without a scored learner answer, run `checkpoint` with the new step and next task. Checkpoints move the pointer without inventing assessment evidence.
+
+When the learner prioritizes speed, use two or three free-recall prompts in one micro-batch. This reduces repeated conversational overhead while preserving retrieval practice.
+
+## Workflow Routing
+
+Use the practical fast track for programming, tools, and work skills:
+
+1. Learner interview and diagnostic
+2. Weighted roadmap with observable milestones
+3. Core 20 percent lessons
+4. Application or code evidence
+5. Spaced retrieval of weak concepts
+6. Small project and cheat sheet
+
+Use the research track below only when the goal requires competing viewpoints, source synthesis, or deep research. Do not make a practical learner complete STORM and conflict mapping before useful practice.
+
+## Progress Model
+
+Create `roadmap.json` after the diagnostic. Define weighted modules and concepts, plus stage patterns that map assessment evidence back to concepts.
+
+Report three different numbers instead of one vague percentage:
+
+- Course coverage: how much of the roadmap has any evidence.
+- Mastery of learned material: how well the covered material is currently understood.
+- Curriculum mastery: mastery across the full roadmap, including unstarted concepts as zero.
+- Verified curriculum mastery: curriculum mastery discounted when evidence is only recall or explanation; application, code, and build evidence receive full weight.
+
+A high score on a narrow topic is not high course completion. A large amount of exposure is not mastery. Keep these measures separate.
 
 ## 0. Learner Interview
 
@@ -162,7 +192,23 @@ After every learner answer:
 - Re-explain only the missing part
 - Increase difficulty if strong; ask a follow-up if weak
 
-Save scores, weak concepts, and next task to `assessment.md` and `learning_state.json`.
+Run the helper's `assess` command so it appends cold history and regenerates the rolling `assessment.md`, compact `learning_state.json`, and `progress-index.md`.
+
+Record the concept id and evidence type with every scored answer:
+
+- `recall`: names or states the idea from memory
+- `explain`: explains boundaries and reasons
+- `apply`: chooses and justifies an approach in a new scenario
+- `code`: writes or corrects working code
+- `build`: integrates the concept in a small project
+
+Advance with this cadence:
+
+- 8-10: move on and revisit later.
+- 6-7.9: correct once and move on unless the gap blocks the next topic.
+- Below 6: run one focused remediation turn; after two consecutive checks on the same boundary, defer it to spaced review instead of looping.
+
+Do not require a recovery quiz on every resume. If the learner returns within seven days and the snapshot is clear, continue directly. Ask a recovery question only for due review, low-confidence state, or a long gap.
 
 ## 9. Feynman Loop
 
@@ -174,7 +220,7 @@ Use the loop for weak concepts:
 4. Re-teach only those parts.
 5. Repeat until the explanation is simple, accurate, and complete.
 
-Do not move to new content before the explanation is clear enough.
+Do not let Feynman review become an endless gate. If one correction does not resolve the gap, record it for spaced review and continue with material that does not depend on it.
 
 ## 10. One-Page Cheat Sheet
 

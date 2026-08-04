@@ -28,6 +28,12 @@ Continue a specific topic:
 @KnowledgeTool 继续Android Compose
 ```
 
+Show current progress and mastery:
+
+```text
+@KnowledgeTool Android Compose进度
+```
+
 Specify where learning files should be saved:
 
 ```text
@@ -47,6 +53,8 @@ Typical files:
 ```text
 learning_state.json
 progress-index.md
+roadmap.json
+assessment-history.jsonl
 context-summary.md
 README.md
 interview.md
@@ -67,27 +75,25 @@ hands-on-tasks.md
 
 ## Learning Flow
 
-KnowledgeTool guides you through:
+For programming and practical skills, KnowledgeTool uses a fast track:
 
-1. Learner interview
-2. Five-perspective research
-3. Conflict map
-4. Integrated brief and self-review
-5. Resource triage
-6. Learning ladder
-7. Core 20 percent lesson plan
-8. Retrieval-practice tests
-9. Feynman review for weak concepts
-10. One-page cheat sheet
+1. Learner interview and diagnostic
+2. Weighted roadmap
+3. Core lessons
+4. Application or code checks
+5. Spaced review
+6. Small project and cheat sheet
+
+Research topics can still use the longer STORM, conflict-map, brief, and peer-review workflow.
 
 ## Mastery Checks
 
-The plugin includes tests by default:
+The plugin uses adaptive checks:
 
 - Diagnostic questions before planning
-- Multiple-choice and short-answer checks after each stage
-- Hands-on tasks for practical topics
-- A short recovery quiz whenever you continue later
+- Free-recall and application checks after lessons
+- Code or build evidence for practical topics
+- Recovery questions only when review is due, confidence is low, or the learning gap is long
 
 During a test, KnowledgeTool asks one question at a time, scores your answer from 0-10, gives the canonical answer, identifies weak concepts, and records the next task.
 
@@ -105,13 +111,23 @@ Scenario questions should include the assumptions that change the answer. For ex
 
 ## Speed And Context Use
 
-KnowledgeTool is designed to resume from compact files first:
+KnowledgeTool separates hot state from cold history:
 
-- `learning_state.json` stores the current step and next task.
-- `progress-index.md` stores the latest score, weak concepts, and fast resume notes.
-- `context-summary.md` stores a compact learner model for long sessions.
+- `learning_state.json` stores only the current pointer, latest assessment, and aggregate metrics.
+- `assessment-history.jsonl` stores the full evidence history and is not loaded during normal turns.
+- `progress-index.md` shows course coverage, mastery of learned material, recent trend, strengths, weak concepts, and the next task.
+- `roadmap.json` defines the modules and concepts used to calculate progress.
 
-The plugin cannot force Codex to change the selected model or app speed mode by itself. It does, however, default to a fast tutoring style: short answers, minimal context loading, and one focused question at a time.
+The progress numbers mean different things:
+
+- Course coverage: how much of the roadmap has been studied at least once.
+- Mastery of learned material: how well the studied portion is understood.
+- Curriculum mastery: mastery across the whole roadmap, including unstarted topics.
+- Verified curriculum mastery: the full-roadmap score adjusted for evidence quality, so verbal recall does not count the same as code or project work.
+
+For faster sessions, ask KnowledgeTool to use sprint mode. It can group two or three free-recall prompts into one message, while still avoiding visible answer choices. Scores of 8-10 advance immediately; scores of 6-7 receive one precise correction and are revisited later.
+
+The plugin cannot force Codex to change the selected model or app speed mode by itself. It reduces latency and token use through compact status snapshots, rolling logs, short feedback, and fewer round trips.
 
 ## Moving Or Backing Up Learning Files
 

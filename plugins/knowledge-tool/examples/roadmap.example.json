@@ -1,0 +1,39 @@
+{
+  "goal": "Build practical competence with observable evidence",
+  "modules": [
+    {
+      "id": "foundations",
+      "title": "Foundations",
+      "weight": 30,
+      "concepts": [
+        {
+          "id": "core-model",
+          "title": "Core mental model",
+          "stage_patterns": ["diagnostic", "core_model"]
+        },
+        {
+          "id": "state-boundaries",
+          "title": "State and ownership boundaries",
+          "stage_patterns": ["state_placement", "state_boundary"]
+        }
+      ]
+    },
+    {
+      "id": "application",
+      "title": "Application",
+      "weight": 70,
+      "concepts": [
+        {
+          "id": "guided-task",
+          "title": "Guided application",
+          "stage_patterns": ["apply", "guided_task"]
+        },
+        {
+          "id": "independent-build",
+          "title": "Independent build",
+          "stage_patterns": ["code", "build", "project"]
+        }
+      ]
+    }
+  ]
+}

@@ -1,15 +1,15 @@
 {
   "name": "knowledge-tool",
-  "version": "0.1.0+codex.20260802130855",
-  "description": "A Codex learning workflow plugin that creates external, resumable study folders for topics and code projects.",
+  "version": "0.1.0+codex.20260804174959",
+  "description": "A token-efficient Codex learning plugin with resumable roadmaps, mastery tracking, sprint tutoring, and external study folders.",
   "author": {
     "name": "KnowledgeTool"
   },
   "skills": "./skills/",
   "interface": {
     "displayName": "KnowledgeTool",
-    "shortDescription": "Interview, plan, test, and resume learning any topic or code project.",
-    "longDescription": "KnowledgeTool guides Codex through a structured learning loop: learner interview, multi-perspective research, conflict mapping, resource triage, staged practice, retrieval testing, Feynman review, and one-page cheat sheets. User study content is always written outside the plugin source into configurable learning directories.",
+    "shortDescription": "Learn faster with compact progress and mastery tracking.",
+    "longDescription": "KnowledgeTool guides Codex through practical sprint learning or deep research workflows. It tracks course coverage, knowledge-point mastery, recent trends, retrieval evidence, and next tasks while keeping full learning history outside the active context. User study content is always written outside the plugin source into configurable learning directories.",
     "developerName": "KnowledgeTool",
     "category": "Productivity",
     "capabilities": [
@@ -18,8 +18,8 @@
     ],
     "defaultPrompt": [
       "@KnowledgeTool Android Compose",
-      "@KnowledgeTool 学习项目 C:\\Ai\\Project\\App",
-      "@KnowledgeTool 继续Android Compose"
+      "@KnowledgeTool \u5b66\u4e60\u9879\u76ee C:\\Ai\\Project\\App",
+      "@KnowledgeTool \u7ee7\u7eedAndroid Compose"
     ]
   }
 }

@@ -17,6 +17,7 @@ Keep plugin source and user learning content separate. Never write learning note
 - `@KnowledgeTool 学习项目 <path>`: create or resume a code-project learning folder and scan the project read-only.
 - `@KnowledgeTool 继续`: resume the most recently updated learning folder.
 - `@KnowledgeTool 继续<topic>` or `@KnowledgeTool 继续 <topic>`: resume a matching topic, for example `@KnowledgeTool 继续Android Compose`.
+- `@KnowledgeTool 进度` or `@KnowledgeTool <topic>进度`: show the compact dashboard before teaching.
 - `保存到 <path>`: override the learning root for that request.
 
 ## Setup And State
@@ -31,48 +32,44 @@ Keep plugin source and user learning content separate. Never write learning note
    `python <plugin>/scripts/knowledge_tool.py init --topic "<project name or topic>" --mode project --project-path "<path>"`
 4. For continuation, run:
    `python <plugin>/scripts/knowledge_tool.py continue --query "<topic>"` or omit `--query` for latest.
-5. Read the returned JSON. Use `learning_dir` and `files` from the script as the only destinations for generated learning content.
-6. For continuation, read `learning_state.json` and `progress-index.md` first. Read longer files only when the current step or learner's question requires them.
+5. Read the returned JSON. Use `learning_dir` as the only destination for generated learning content.
+6. For continuation or progress questions, run `status --slug <slug>` and use only `resume_snapshot` first. Read `progress-index.md` only when the learner asks for detail. Do not read `assessment-history.jsonl` during ordinary tutoring.
+7. After the interview, create a topic roadmap JSON with modules, weighted concepts, and `stage_patterns`, then attach it with `plan --slug <slug> --file <roadmap.json>`. Without a roadmap, report mastery of completed checks but label total course progress as unknown.
 
 If `continue` returns multiple candidates, show the candidates and ask the user which one to continue.
 
 ## Fast Resume And Context Budget
 
-KnowledgeTool should optimize for fast tutoring turns, not exhaustive context loading:
+KnowledgeTool should optimize for learning per minute, not number of tutoring turns:
 
-- Default to concise, direct answers in the user's language, followed by at most one focused retrieval question.
-- Use `progress-index.md` as the first human-readable index for where the learner is, recent scores, weak concepts, and the next task.
-- Keep `context-summary.md` as a compact learner model and concept summary when a session becomes long.
-- After each assessment, stage change, or meaningful correction, update `assessment.md` and use `scripts/knowledge_tool.py assess` so `learning_state.json` and `progress-index.md` stay current.
-- Avoid rereading all learning documents on every turn. Prefer the current-stage file and the index.
+- Default to a sprint turn: concise correction or lesson, smallest useful example, then one focused free-recall or code task.
+- When the learner wants faster progress, use a micro-batch of two or three free-recall prompts answered in one message. Never add answer choices merely to batch questions.
+- Run `status` to resume. Treat `assessment-history.jsonl` as cold history and `learning_state.json` as a compact pointer, not an event log.
+- Use `scripts/knowledge_tool.py assess` with `--concept` and `--evidence` so the tool updates the rolling assessment log, knowledge-point mastery, and progress index deterministically. Do not manually append every answer to a growing Markdown file.
+- Use `scripts/knowledge_tool.py checkpoint` after a lesson, example, or stage transition that has no learner score. Never leave the next-task pointer stale merely because no assessment occurred.
+- Show a one-line dashboard every three scored checks and at session end: course coverage, mastery of learned material, recent trend, and next task.
+- Keep `context-summary.md` only for stable learner preferences or unresolved conceptual models that cannot be represented by the roadmap and assessment data.
 - The plugin cannot force Codex to switch model or speed modes by itself. If the host exposes a model or speed control, follow the user's fast-mode preference. Otherwise, emulate fast mode through shorter answers, smaller context reads, and one-question-at-a-time teaching.
 
 ## Learning Workflow
 
-Read `references/learning-flow.md` before generating or continuing the study content. Before asking mastery-check, retrieval-practice, or Feynman-loop questions, also read and apply `references/question-design.md`. Follow the stages in order unless the saved state says the learner is repeating a remediation loop.
+Read `references/learning-flow.md` before generating or continuing study content. Before asking mastery-check, retrieval-practice, or Feynman-loop questions, also read and apply `references/question-design.md`.
 
-Each stage must update the appropriate Markdown file and end with a concrete next step:
+Choose the shortest workflow that matches the goal:
 
-1. Learner interview
-2. Five-perspective STORM exploration
-3. Conflict map
-4. Integrated research brief
-5. Peer-review self-check
-6. Resource triage
-7. Learning ladder
-8. Core 20 percent lesson plan
-9. Mastery assessment and retrieval practice
-10. Feynman loop
-11. One-page cheat sheet
+- Practical/code fast track: interview, diagnostic, roadmap, core lessons, code/application checks, spaced review, small project.
+- Research/deep-understanding track: interview, STORM exploration, conflict map, brief, peer review, resource triage, ladder, assessment, Feynman review, cheat sheet.
+
+Do not force STORM, conflict mapping, or a ten-lesson document onto a learner whose goal is practical skill. Every stage must end with a concrete next task and update the compact state when the task changes.
 
 ## Mastery Checks
 
 Include assessment throughout the flow, even if the user did not ask for tests. Keep it constructive and adaptive:
 
-- Before planning: 3 diagnostic questions to estimate current level.
-- After each learning level: 3 multiple-choice questions, 2 short-answer questions, and 1 hands-on task.
-- When resuming: a 3-5 minute recovery quiz before deciding whether to continue, review, or enter Feynman remediation.
-- During active testing: ask one question at a time, wait for the learner's answer, score 0-10, identify gaps, and update `assessment.md`.
+- Before planning: use up to 3 diagnostic questions only when existing evidence is insufficient.
+- After a lesson: prefer one application question. Use a two-to-three-question micro-batch when reducing round trips matters more than immediate adaptation.
+- When resuming within seven days, continue from the compact snapshot without a mandatory recovery quiz. Use one retrieval prompt only when a concept is due for review or confidence is low.
+- During active testing: normally ask one question at a time; use a two-to-three-question free-recall micro-batch when the learner prioritizes speed. Score 0-10, identify gaps, and run the helper's `assess` command.
 - After every learner answer, provide the canonical answer before or alongside feedback. Do not only comment on the learner's response. The feedback shape should be: score, canonical answer, what the learner got right, precise corrections, and one next question or task.
 - Prefer free-recall questions over recognition questions. Do not provide an answer bank, option list, or multiple-choice choices unless the learner asks for them, the learner is a beginner who needs scaffolding, or the task specifically requires multiple-choice practice. For classification drills, give only the scenarios and ask the learner to name the mechanism and justify it.
 - Avoid answer-order leakage. Do not make answers follow the same order as options, examples, state buckets, or concepts introduced immediately before the question. Randomize or deliberately vary option order, scenario order, and answer mappings. For matching/classification questions, include at least one reordered scenario or distractor, and do not ask questions where the correct response is simply "the same order as above".
@@ -83,7 +80,14 @@ Include assessment throughout the flow, even if the user did not ask for tests. 
 - Run a question quality gate before asking: one main concept, explicit assumptions, clear expected answer shape, learner-appropriate difficulty, and useful signal from likely wrong answers. Prefer plain-language situations before naming terms.
 - If the learner says a question is unclear, inaccurate, too easy because of visible choices, or poorly scaled, treat that as assessment feedback. Record the teaching issue when useful, rewrite the question, and continue with the improved version.
 
-Use `scripts/knowledge_tool.py assess` after scoring to record the score, weak concepts, and next task in `learning_state.json`.
+Use `scripts/knowledge_tool.py assess` after scoring to append the full evidence history and regenerate compact state, the rolling assessment log, and the progress index.
+
+Use these advancement rules to prevent slow remediation loops:
+
+- Score 8-10: advance immediately and schedule later retrieval.
+- Score 6-7.9: give one precise correction, record the gap, then advance unless it blocks the next concept.
+- Score below 6: give one focused remediation turn. Do not spend more than two consecutive checks on the same boundary; defer it to spaced review if still weak.
+- Treat `apply`, `code`, and `build` evidence as stronger than recognition. Do not call a concept mastered from one verbal answer.
 
 ## Code Project Mode
 
